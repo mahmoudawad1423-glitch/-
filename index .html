@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#12202e">
+<title>سجل الأضرار ومخيمات النزوح – غزة</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
+<style>
+:root{--ink:#12202e;--bg:#eef1f3;--card:#fff;--line:#d5dbe0;--mut:#5d6b78;--pri:#0b5563;--pri2:#0e7c8c;--bad:#9d1c1c}
+*{box-sizing:border-box}
+body{margin:0;font-family:Tajawal,Tahoma,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.55}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:3px solid #f2b705;outline-offset:1px}
+header{background:var(--ink);color:#fff;padding:12px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+header h1{margin:0;font-size:20px;font-weight:800}header p{margin:2px 0 0;font-size:13px;color:#9fb4c4}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;font-weight:500;font-size:14px}
+.btn.dk{background:#1f3347;border-color:#34495e;color:#fff}.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
+.btn.sm{padding:3px 9px;font-size:12px}.cb{width:34px;text-align:center}td.cb input,th.cb input{width:18px;height:18px;margin:0;cursor:pointer}.btn.bad{background:var(--bad);border-color:var(--bad);color:#fff}.btn:hover{filter:brightness(1.1)}
+.anon{color:#cfdbe6;font-size:13px}
+nav{display:flex;background:#fff;border-bottom:1px solid var(--line);padding:0 12px;overflow-x:auto}
+nav button{border:0;background:none;padding:12px 18px;color:var(--mut);border-bottom:3px solid transparent;white-space:nowrap;font-weight:500}
+nav button.on{color:var(--pri);border-color:var(--pri);font-weight:800}
+.filters{display:flex;flex-wrap:wrap;gap:8px;padding:12px 20px;background:#e3e8ec}
+.filters input,.filters select,.f input,.f select,.f textarea{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:#fff;width:100%}
+.filters input,.filters select{width:auto;min-width:130px;flex:1 1 130px}
+main{max-width:1200px;margin:0 auto;padding:16px 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.card h2{margin:0;padding:10px 14px;font-size:15px;font-weight:700;border-bottom:1px solid var(--line);background:#f6f8f9;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.pane{padding:14px}.cv{position:relative;height:260px}.cv.tall{height:340px}.card.wide{grid-column:1/-1}
+.kpis{display:flex;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.kpi{flex:1 1 150px;padding:12px 18px;border-inline-start:1px solid var(--line)}
+.kpi b{display:block;font-size:30px;font-weight:800;line-height:1.1}.kpi span{font-size:13px;color:var(--mut)}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:10px}.f label{font-size:13px;font-weight:700;display:block;margin-bottom:3px}.f .w{grid-column:1/-1}
+.hint{font-size:12px;color:var(--mut);margin-top:3px}
+.bar{display:grid;grid-template-columns:120px 1fr 34px;gap:8px;align-items:center;margin:6px 0;font-size:13px}
+.bar i{display:block;height:14px;border-radius:3px;min-width:2px;background:var(--c,var(--pri))}.bar em{font-style:normal;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:#f0f3f5;text-align:start;padding:9px 10px;white-space:nowrap}td{padding:8px 10px;border-top:1px solid var(--line)}
+tbody tr{cursor:pointer}tbody tr:nth-child(even){background:#f8fafb}tbody tr:hover{background:#e9f1f3}
+.scroll{overflow-x:auto}
+.chip{display:inline-block;padding:2px 9px;border-radius:12px;color:#fff;font-size:12px;font-weight:700;background:var(--c,#777)}
+.st{display:inline-block;border:1px solid var(--c,var(--line));color:var(--c,var(--ink));border-radius:12px;padding:2px 9px;font-size:12px;background:#fff}
+#map{height:560px}#pick{height:340px;border-radius:8px;border:1px solid var(--line)}
+.m{display:block;width:16px;height:16px;border:2px solid #fff;box-shadow:0 0 3px #0008}
+.m.b{border-radius:2px}.m.c{border-radius:50%}.m.a{transform:rotate(45deg);width:14px;height:14px}.m.i{border-radius:50% 50% 2px 2px}
+.m.k{clip-path:polygon(50% 0,100% 100%,0 100%);border:0;width:18px;height:17px;box-shadow:none}
+.leg{display:flex;flex-wrap:wrap;gap:12px;padding:8px 14px;font-size:12px;border-top:1px solid var(--line);color:var(--mut)}
+.leg label{display:flex;align-items:center;gap:5px;margin:0;font-size:12px;font-weight:500;color:var(--ink)}.leg span{display:flex;align-items:center;gap:5px}.leg i{width:11px;height:11px;border-radius:2px;background:var(--c)}
+.msg{padding:.6rem .8rem;border-radius:6px;background:#f6d6d6;color:#7a1818;margin:.6rem 0}.msg.ok{background:#d9f0df;color:#1e5b32}.msg.warn{background:#fff3cd;color:#6b5200}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:.2rem .8rem;margin:.6rem 0}.kv dt{color:var(--mut)}.kv dd{margin:0}
+.ph{display:flex;gap:6px;flex-wrap:wrap}.ph img{width:100px;height:80px;object-fit:cover;border-radius:6px}
+dialog{border:0;border-radius:12px;padding:18px;max-width:560px;width:92%;box-shadow:0 10px 40px #0006;font-family:Tajawal,sans-serif;direction:rtl}
+dialog::backdrop{background:#12202e99}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.row>*{flex:1;min-width:130px}
+#toast{position:fixed;bottom:18px;inset-inline-start:18px;background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9999}#toast.on{opacity:1}
+.hide{display:none!important}
+@media print{body:not(.pd)>*:not(dialog){display:none!important}body.pd>*:not(#appView){display:none!important}body.pd nav,body.pd .filters,body.pd header .tools{display:none!important}dialog{position:static;box-shadow:none;max-width:100%}.noprint{display:none!important}}
+</style>
+</head>
+<body>
+
+<div id="authView" class="hide"><main style="max-width:420px;margin-top:8vh"><div class="card pane">
+  <h2 style="margin:0 0 4px;background:none;border:0;padding:0;font-size:20px">سجل الأضرار ومخيمات النزوح – غزة</h2>
+  <p class="hint" style="margin-bottom:14px">الدخول مطلوب لإدخال البيانات ومزامنتها مع الفريق.</p>
+  <div class="f">
+    <div class="w hide" id="nameLbl"><label for="fullName">الاسم الكامل</label><input id="fullName" autocomplete="name"></div>
+    <div class="w"><label for="email">البريد الإلكتروني</label><input id="email" type="email" dir="ltr" autocomplete="email"></div>
+    <div class="w"><label for="pass">كلمة المرور</label><input id="pass" type="password" dir="ltr" autocomplete="current-password"></div>
+  </div>
+  <div id="authMsg"></div>
+  <div class="row" style="margin-top:12px"><button class="btn pri" id="authGo">دخول</button><button class="btn" id="authSwap">إنشاء حساب جديد</button></div>
+</div></main></div>
+
+<div id="pendingView" class="hide"><main style="max-width:480px;margin-top:8vh"><div class="card pane">
+  <h2 style="background:none;border:0;padding:0">حسابك بانتظار الموافقة</h2>
+  <p>تم إنشاء الحساب. يمكنك الدخول بعد أن يوافق عليه المدير.</p><button class="btn" onclick="logout()">تسجيل الخروج</button>
+</div></main></div>
+
+<div id="appView" class="hide">
+  <header>
+    <div><h1>سجل الأضرار ومخيمات النزوح – غزة</h1><p>توثيق ميداني بتصنيف معياري وتحقق من البيانات</p></div>
+    <div class="tools"><span class="chip hide" id="netBadge" style="--c:#9d1c1c">غير متصل</span><button class="btn dk hide" id="draftsBtn"></button><span class="anon" id="who"></span><button class="btn dk" onclick="logout()">خروج</button></div>
+  </header>
+  <nav id="nav">
+    <button data-v="dash" class="on">لوحة المؤشرات</button><button data-v="list">السجلات</button>
+    <button data-v="add">تسجيل جديد</button><button data-v="mapv">الخريطة</button>
+    <button data-v="imp" id="impTab" class="hide">استيراد ملفات</button>
+    <button data-v="users" id="usersTab" class="hide">الإدارة</button>
+  </nav>
+  <section class="filters" id="filters" aria-label="الفلاتر">
+    <input id="q" type="search" placeholder="بحث بالاسم أو المعرف…">
+    <select id="fCat"></select><select id="fGrade"></select><select id="fDist"></select><select id="fSt"></select><select id="fConf"></select>
+    <button class="btn" id="fClr">مسح الفلاتر</button>
+  </section>
+  <div id="scopeMsg" class="msg warn hide" style="margin:12px 20px"></div>
+  <main>
+    <section id="dash"></section>
+
+    <section id="list" class="hide"><div class="card">
+      <h2>السجلات <span class="tools"><span class="st" id="cnt"></span>
+        <label class="hint" title="يحذف الأسماء والعناوين والملاحظات ويقرّب الإحداثيات (~100 م)"><input type="checkbox" class="anonc" style="width:auto"> تصدير مُجهَّل</label>
+        <button class="btn" data-x="geo">GeoJSON</button><button class="btn" data-x="csv">CSV</button></span></h2>
+      <div id="bulk" class="pane hide noprint" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff8e1;border-bottom:1px solid var(--line)"><b id="selN"></b>
+        <button class="btn sm pri" id="bAp">اعتماد المحدد</button><button class="btn sm" id="bRj">رفض المحدد</button><button class="btn sm bad" id="bDel">حذف المحدد</button><button class="btn sm" id="bClr">إلغاء التحديد</button></div>
+      <div class="scroll"><table><thead><tr><th class="cb"><input type="checkbox" id="selAll" aria-label="تحديد الكل"></th><th>المعرف</th><th>الاسم</th><th>النوع</th><th>الكمية</th><th>الدرجة</th><th>الحي</th><th>الثقة</th><th>المراجعة</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+      <div id="empty" class="pane hide" style="color:var(--mut)">لا توجد سجلات مطابقة. عدّل الفلاتر أو سجّل ضرراً جديداً.</div>
+    </div></section>
+
+    <section id="add" class="hide"><div class="card"><div class="pane"><div class="f">
+      <div class="w"><label for="aO">اسم المالك / المخيم / المرفق *</label><input id="aO" maxlength="120"></div>
+      <div><label for="aT">نوع الكيان *</label><select id="aT"></select></div>
+      <div><label for="aQ" id="aQL">الكمية</label><input id="aQ" type="number" min="1" value="1"></div>
+      <div><label for="aG">درجة الضرر / الحالة *</label><select id="aG"></select></div>
+      <div><label for="aD">الحي / المنطقة *</label><select id="aD"></select></div>
+      <div id="campX" class="w f hide" style="padding:0"><div><label for="aFam">عدد الأسر</label><input id="aFam" type="number" min="0"></div><div><label for="aPer">عدد الأفراد</label><input id="aPer" type="number" min="0"></div></div>
+      <div class="w"><label for="aS">وصف الموقع / المعالم القريبة</label><input id="aS" maxlength="160"></div>
+      <div><label for="aLat">خط العرض *</label><input id="aLat" type="number" step="any" dir="ltr"></div>
+      <div><label for="aLng">خط الطول *</label><input id="aLng" type="number" step="any" dir="ltr"></div>
+      <div class="w row"><button class="btn" id="gps" type="button">استخدم موقعي الحالي</button><span id="refAdmin" class="hide" style="display:contents"><label class="btn" for="refF" style="text-align:center;margin:0">تحميل طبقة من ملف…</label><input id="refF" type="file" accept=".geojson,.json,.zip" class="hide"><button class="btn" id="refM" type="button">مطابقة الحقول</button><button class="btn" id="refPub" type="button">نشر على الخادم</button><button class="btn" id="refSrv" type="button">طبقات الخادم</button></span><span class="hint" style="flex:3">ارسم حدود المبنى (مضلع أو مستطيل)، أو انقر على بصمة مرجعية إن حمّلت طبقة، أو انقر لتحديد نقطة فقط. <b id="areaOut"></b><br><span id="refS"></span></span></div>
+      <div class="w"><div id="pick"></div><div class="leg"><span><i style="--c:#4fd1d9"></i>غير موثّق</span><span><i style="--c:#d9a400"></i>موثّق (اللون = درجة الضرر)</span><span><i style="--c:#f2b705"></i>المحدد الآن</span><label><input type="checkbox" id="refOnly" style="width:auto"> إخفاء المباني الموثّقة</label></div></div>
+      <div class="w"><label for="aN">ملاحظات المعاينة</label><textarea id="aN" rows="2" maxlength="500"></textarea></div>
+      <div><label for="aSrc">مصدر المعلومة</label><select id="aSrc"></select></div>
+      <div><label for="aP">صور الإثبات (حتى 5)</label><input id="aP" type="file" accept="image/*" multiple><div class="hint">تُضغط الصور وتُحذف بيانات موقعها (EXIF) قبل الرفع.</div></div>
+    </div><div id="addMsg"></div><button class="btn pri" id="save" style="margin-top:12px;width:100%">حفظ السجل</button></div></div></section>
+
+    <section id="mapv" class="hide"><div class="card">
+      <h2>الخريطة <span class="tools"><select id="base" class="btn" aria-label="خلفية الخريطة"><option value="sat">أقمار صناعية</option><option value="osm">شوارع OSM</option><option value="lt">خريطة فاتحة</option></select>
+      <select id="lyr" class="btn" aria-label="طبقة العرض"><option value="pts">نقاط</option><option value="heat">خريطة حرارية</option></select></span></h2>
+      <div id="map"></div><div class="leg" id="leg"></div>
+    </div></section>
+
+    <section id="imp" class="hide"><div class="card"><h2>استيراد ملفات (مباني / مواقع)</h2><div class="pane">
+      <p class="hint" style="margin-top:0">الصيغ المدعومة: GeoJSON، وCSV فيه عمودا خط العرض والطول، وShapefile مضغوط (.zip). تُستورد السجلات بحالة «بانتظار المراجعة» وتُتجاهل المكررة والخارجة عن القطاع. أما بصمات المباني التي لا تحمل درجة ضرر فحمّلها كـ«طبقة مباني مرجعية» من تبويب «تسجيل جديد» بدل استيرادها.</p>
+      <input type="file" id="iFile" accept=".geojson,.json,.csv,.zip" style="max-width:420px">
+      <div id="iMap" class="hide"><div class="f" style="margin-top:12px">
+        <div><label for="iO">حقل الاسم</label><select id="iO"></select></div>
+        <div><label for="iQ">حقل العدد (اختياري)</label><select id="iQ"></select></div>
+        <div><label for="iGF">حقل درجة الضرر (اختياري)</label><select id="iGF"></select></div>
+        <div><label for="iT">نوع الكيان (لكل السجلات)</label><select id="iT"></select></div>
+        <div><label for="iG">درجة الضرر الافتراضية</label><select id="iG"></select></div>
+        <div><label for="iD">الحي</label><select id="iD"></select></div>
+        <div><label for="iS">مصدر المعلومة</label><select id="iS"></select></div>
+      </div><div id="iInfo" class="msg warn"></div><button class="btn pri" id="iGo">استيراد</button></div>
+    </div></div></section>
+
+    <section id="users" class="hide">
+      <div class="card"><h2>النسخ الاحتياطي</h2><div class="pane">
+        <p class="hint" style="margin-top:0"><b>JSON:</b> كل السجلات + المستخدمون (الأدوار والأحياء) + بيانات الطبقات المنشورة، دون كلمات المرور. <b>SQL:</b> السجلات كأوامر إدخال تعيدها في SQL Editor داخل المشروع نفسه. <b>الصور:</b> ملف ZIP بكل الصور. ملفات الطبقات المرجعية غير مشمولة، فاحتفظ بنسخها الأصلية.</p>
+        <div class="row"><button class="btn pri" id="bkJ">نسخة JSON (البيانات)</button><button class="btn" id="bkS">نسخة SQL (السجلات)</button><button class="btn" id="bkP">نسخة الصور (ZIP)</button></div>
+        <p class="hint" id="bkLast" style="margin-bottom:0"></p>
+      </div></div><div class="card scroll"><table><thead><tr><th>الاسم</th><th>الدور</th><th>معتمد</th><th>نطاق العمل (الأحياء)</th></tr></thead><tbody id="urows"></tbody></table></div></section>
+  </main>
+</div>
+
+<dialog id="dlg"></dialog>
+<div id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/shpjs@4.0.4/dist/shp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const CFG={url:"https://moxxuubnfhmtyisldvdd.supabase.co",key:"sb_publishable_KjXSmMsNO0J6cUpo3tQNCg_t8WkGi39"}; // من Supabase > Project Settings > API
+const sb=supabase.createClient(CFG.url,CFG.key);
+if(typeof Chart!=="undefined"){Chart.defaults.font.family="Tajawal, Tahoma, sans-serif";Chart.defaults.color="#12202e"}
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const BLD=["مدمّر كلياً","ضرر شديد","ضرر متوسط","ضرر محتمل"],CAMPG=["نشط ومكتظ","نشط","مُخلى"],AGRG=["تجريف كامل","تجريف جزئي"];
+const TYPES=[{k:"res",n:"مبنى سكني",c:"bld",u:"طابق"},{k:"multi",n:"عمارة سكنية",c:"bld",u:"طابق"},{k:"edu",n:"مرفق تعليمي",c:"bld",u:"طابق"},{k:"health",n:"مرفق صحي",c:"bld",u:"طابق"},{k:"com",n:"منشأة تجارية",c:"bld",u:"طابق"},{k:"camp",n:"مخيم نزوح",c:"camp",u:"خيمة"},{k:"agri",n:"أرض زراعية",c:"agri",u:"دونم"},{k:"infra",n:"بنية تحتية",c:"infra",u:"وحدة"}];
+const CATS={bld:"مبانٍ ومنشآت",camp:"مخيمات نزوح",agri:"أراضٍ زراعية",infra:"بنية تحتية"},SHAPE={bld:"b",camp:"k",agri:"a",infra:"i"};
+const GCOL={"مدمّر كلياً":"#9d1c1c","ضرر شديد":"#e8590c","ضرر متوسط":"#d9a400","ضرر محتمل":"#7b8794","نشط ومكتظ":"#1c6ed5","نشط":"#5b9bf0","مُخلى":"#9fb4cc","تجريف كامل":"#3f7d2e","تجريف جزئي":"#8fba6a"};
+const DISTS=["حي الرمال","حي تل الهوى","حي الشيخ رضوان","حي الشجاعية","حي الزيتون","حي النصر","مخيم الشاطئ","المحافظات الجنوبية","المحافظات الوسطى","محافظة الشمال","منطقة أخرى"];
+const ST={pending:["بانتظار المراجعة","#5d6b78"],approved:["معتمد","#2e7d32"],rejected:["مرفوض","#9d1c1c"]};
+const SRC={field:"معاينة ميدانية",witness:"شهادة شاهد",imagery:"صورة جوية/قمر صناعي",other:"أخرى"},SW={field:20,imagery:15,witness:10,other:0};
+const ROLE={collector:"جامع بيانات / مهندس",reviewer:"مراجع",admin:"مدير"},CC={"عالية":"#2e7d32","متوسطة":"#d9a400","منخفضة":"#9aa5b1"};
+const BB={la:[31.2,31.62],ln:[34.2,34.6]};
+const tOf=k=>TYPES.find(t=>t.k===k)||TYPES[0],gradesOf=t=>t.c==="camp"?CAMPG:t.c==="agri"?AGRG:BLD;
+let CH={},NAMES={},rt=null,rtT,keepView=false,USERS=[],SEL=new Set(),ANON=false,SUM=[],me=null,recs=[],CF=new Set(),cur="dash",signup=false,pickMap,pickMk,bigMap,baseL,dataL;
+
+function toast(m){const t=$("#toast");t.textContent=m;t.className="on";clearTimeout(toast.h);toast.h=setTimeout(()=>t.className="",3500)}
+const canEdit=c=>me.role==="reviewer"||me.role==="admin"||(c.created_by===me.id&&c.status==="pending"),canDel=c=>me.role==="admin"||(c.created_by===me.id&&c.status==="pending");
+const isAll=()=>me.role==="reviewer"||me.role==="admin",myD=()=>isAll()?DISTS:DISTS.filter(d=>(me.districts||[]).includes(d));
+const canAct=c=>canEdit(c)||canDel(c);
+const rid=c=>"REC-"+c.id.slice(0,6).toUpperCase(),fmt=d=>new Date(d).toLocaleDateString("ar-EG");
+/* ---- طبقة الثقة (أوزان تقديرية، عدّلها حسب منهجيتك) ---- */
+function conf(c){if(c.status==="rejected")return 0;const n=(c.photos||[]).length;return Math.min(100,(n?30:0)+(n>1?10:0)+(c.status==="approved"?40:0)+(SW[c.source]||0))}
+const cLvl=c=>{const x=conf(c);return x>=70?"عالية":x>=40?"متوسطة":"منخفضة"};
+const hav=(a,b,c,d)=>{const R=6371000,r=Math.PI/180;return R*Math.hypot((c-a)*r,(d-b)*r*Math.cos((a+c)*r/2))};
+function conflicts(){const o=new Set(),a=recs.filter(c=>c.status!=="rejected");
+  for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++){const x=a[i],y=a[j];
+    if(Math.abs(x.lat-y.lat)<.0002&&tOf(x.type).c===tOf(y.type).c&&x.grade!==y.grade&&hav(x.lat,x.lng,y.lat,y.lng)<15){o.add(x.id);o.add(y.id)}}
+  return o}
+
+/* ---- المصادقة ---- */
+function screen(v){["authView","pendingView","appView"].forEach(x=>$("#"+x).classList.toggle("hide",x!==v))}
+const authErr=m=>$("#authMsg").innerHTML='<div class="msg">'+esc(m)+"</div>";
+$("#authSwap").onclick=()=>{signup=!signup;$("#nameLbl").classList.toggle("hide",!signup);$("#authGo").textContent=signup?"إنشاء الحساب":"دخول";$("#authSwap").textContent=signup?"لدي حساب":"إنشاء حساب جديد";$("#authMsg").innerHTML=""};
+$("#authGo").onclick=async()=>{
+  const email=$("#email").value.trim(),password=$("#pass").value;
+  if(!email||password.length<6)return authErr("أدخل بريداً صحيحاً وكلمة مرور من 6 أحرف على الأقل.");
+  const r=signup?await sb.auth.signUp({email,password,options:{data:{full_name:$("#fullName").value.trim()}}}):await sb.auth.signInWithPassword({email,password});
+  if(r.error)return authErr(r.error.message);
+  if(signup&&!r.data.session)return $("#authMsg").innerHTML='<div class="msg ok">تم إنشاء الحساب. أكّد بريدك إن طُلب منك، ثم سجّل الدخول.</div>';
+  boot()};
+async function logout(){await sb.auth.signOut();rt&&sb.removeChannel(rt);rt=null;await kvSet("srv",null);me=null;screen("authView")}
+function opts(sel,first,list){sel.innerHTML=(first?`<option value="">${first}</option>`:"")+list.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join("")}
+function initLists(){
+  opts($("#fCat"),"كل الفئات",Object.entries(CATS));
+  opts($("#fGrade"),"كل الدرجات",[...BLD,...CAMPG,...AGRG].map(g=>[g,g]));
+  opts($("#fDist"),"كل الأحياء",myD().map(d=>[d,d]));
+  opts($("#fSt"),"كل حالات المراجعة",Object.entries(ST).map(([k,v])=>[k,v[0]]));
+  opts($("#fConf"),"كل مستويات الثقة",[["عالية","عالية"],["متوسطة","متوسطة"],["منخفضة","منخفضة"],["cf","⚠ تعارض فقط"]]);
+  opts($("#aT"),"",TYPES.map(t=>[t.k,t.n]));opts($("#aD"),"",myD().map(d=>[d,d]));opts($("#aSrc"),"",Object.entries(SRC));
+  typeChange();opts($("#iT"),"",TYPES.map(t=>[t.k,t.n]));opts($("#iD"),"",DISTS.map(d=>[d,d]));opts($("#iS"),"",Object.entries(SRC));impType();
+  $("#leg").innerHTML=Object.entries(GCOL).map(([g,c])=>`<span><i style="--c:${c}"></i>${g}</span>`).join("")}
+async function boot(){
+  const {data:{session}}=await sb.auth.getSession();if(!session)return screen("authView");
+  const {data}=await sb.from("gz_profiles").select("*").eq("id",session.user.id).single();me=data;
+  if(!me||!me.approved)return screen("pendingView");
+  $("#who").textContent=(me.full_name||session.user.email)+" – "+ROLE[me.role]+(isAll()?"":" – "+(myD().join("، ")||"بلا نطاق"));
+  $("#refAdmin").classList.toggle("hide",me.role!=="admin");const sm=$("#scopeMsg");sm.textContent="لم يُعيَّن لك حي بعد، فلن تظهر لك سجلات ولا يمكنك التسجيل. تواصل مع المدير ليحدد نطاقك.";sm.classList.toggle("hide",isAll()||myD().length>0);
+  $("#usersTab").classList.toggle("hide",me.role!=="admin");$("#impTab").classList.toggle("hide",!(me.role==="admin"||me.role==="reviewer"));
+  screen("appView");initLists();kvSet("ref",null);kvGet("srv").then(c=>{if(c&&c.uid===me.id)useSrvRef(c.layers)}).then(syncRef);subscribeRT();draftsUI();flushQueue();if(isAll())sb.from("gz_profiles").select("id,full_name").then(({data})=>{NAMES=Object.fromEntries((data||[]).map(u=>[u.id,u.full_name||""]));refresh()});await load();show("dash")}
+
+/* ---- التنقل والبيانات ---- */
+function show(v){cur=v;
+  document.querySelectorAll("main>section").forEach(s=>s.classList.toggle("hide",s.id!==v));
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+  $("#filters").classList.toggle("hide",!["dash","list","mapv"].includes(v));
+  if(v==="add")initPick();if(v==="users")loadUsers();refresh()}
+$("#nav").onclick=e=>{if(e.target.dataset.v)show(e.target.dataset.v)};
+function refresh(){cur==="dash"?dash():cur==="list"?table():cur==="mapv"?drawMap():0}
+async function load(){const {data,error}=await fetchAll("gz_records");
+  if(error)toast("تعذّر تحميل السجلات: "+error.message);recs=error?[]:data;CF=conflicts();markRef();refresh()}
+["fCat","fGrade","fDist","fSt","fConf"].forEach(i=>$("#"+i).addEventListener("input",refresh));let qT;$("#q").addEventListener("input",()=>{clearTimeout(qT);qT=setTimeout(refresh,180)});
+$("#fClr").onclick=()=>{["q","fCat","fGrade","fDist","fSt","fConf"].forEach(i=>$("#"+i).value="");refresh()};
+function view(){const q=$("#q").value.trim().toLowerCase(),cat=$("#fCat").value,g=$("#fGrade").value,d=$("#fDist").value,s=$("#fSt").value,fc=$("#fConf").value;
+  return recs.filter(c=>(!q||c.owner.toLowerCase().includes(q)||rid(c).toLowerCase().includes(q))&&(!cat||tOf(c.type).c===cat)&&(!g||c.grade===g)&&(!d||c.district===d)&&(!s||c.status===s)&&(!fc||(fc==="cf"?CF.has(c.id):cLvl(c)===fc)))}
+
+/* ---- لوحة المؤشرات ---- */
+/* ---- الرسوم البيانية ---- */
+const CCOL={bld:"#0b5563",camp:"#1c6ed5",agri:"#3f7d2e",infra:"#7b6c9d"},ORDER=[...BLD,...CAMPG,...AGRG];
+const ymd=x=>x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");
+const pick=(sel,val)=>{const el=$(sel);if(![...el.options].some(o=>o.value===val))return;el.value=el.value===val?"":val;refresh()};
+const hov=(e,els)=>{e.native.target.style.cursor=els.length?"pointer":"default"};
+const chCard=(id,title,hint,cls="")=>`<div class="card ${cls}"><h2>${title}${hint?` <span class="hint">${hint}</span>`:""}</h2><div class="pane"><div class="cv ${cls.includes("tall")?"tall":""}"><canvas id="${id}"></canvas></div></div></div>`;
+const chHtml=()=>`<div class="grid">${chCard("chT","وتيرة التوثيق عبر الزمن","أعمدة: سجلات جديدة · خط: التراكمي","wide")}${chCard("chG","توزيع درجات الضرر","انقر لتصفية الدرجة")}${chCard("chD","التوزيع حسب الحي","انقر لتصفية الحي","tall")}${chCard("chC","حسب الفئة","انقر لتصفية الفئة")}${chCard("chS","حالة المراجعة","انقر للتصفية")}${chCard("chQ","مستوى الثقة","انقر للتصفية")}${isAll()?chCard("chM","إنجاز المهندسين","النسبة بين قوسين = المعتمد من المسجَّل","wide tall"):""}</div>`;
+function drawCharts(v,cat){Object.values(CH).forEach(c=>c.destroy());CH={};if(!v.length)return;
+  const base=(x={})=>({responsive:true,maintainAspectRatio:false,animation:{duration:250},onHover:hov,...x}),
+    leg=(s=true)=>({legend:{display:s,rtl:true,textDirection:"rtl",labels:{boxWidth:12}},tooltip:{rtl:true,textDirection:"rtl"}}),
+    mk=(id,cfg)=>{const el=$("#"+id);if(el)CH[id]=new Chart(el,cfg)},
+    by=f=>{const o={};v.forEach(c=>{const k=f(c);o[k]=(o[k]||0)+1});return Object.entries(o).sort((a,b)=>b[1]-a[1])},
+    ints={beginAtZero:true,ticks:{precision:0}};
+  /* الزمن: يوم/أسبوع/شهر حسب المدى */
+  const ts=v.map(c=>new Date(c.created_at)).sort((a,b)=>a-b),last=ts[ts.length-1],span=(last-ts[0])/864e5,mode=span>120?"m":span>30?"w":"d";
+  const mon=d=>{const x=new Date(d);if(mode==="w")x.setDate(x.getDate()-((x.getDay()+6)%7));return mode==="m"?ymd(x).slice(0,7):ymd(x)};
+  const keys=[],d0=new Date(ts[0]);if(mode==="m")d0.setDate(1);else if(mode==="w")d0.setDate(d0.getDate()-((d0.getDay()+6)%7));
+  for(const d=new Date(d0);d<=last&&keys.length<400;mode==="m"?d.setMonth(d.getMonth()+1):d.setDate(d.getDate()+(mode==="w"?7:1)))keys.push(mon(d));
+  const mm={};v.forEach(c=>{const k=cat(c)+"|"+mon(c.created_at);mm[k]=(mm[k]||0)+1});
+  const cats=Object.keys(CATS).filter(k=>v.some(c=>cat(c)===k));let run=0;
+  const cum=keys.map(k=>(run+=cats.reduce((s,ct)=>s+(mm[ct+"|"+k]||0),0)));
+  const lab=k=>mode==="m"?new Date(k+"-01T00:00:00").toLocaleDateString("ar-EG",{month:"short",year:"2-digit"}):new Date(k+"T00:00:00").toLocaleDateString("ar-EG",{day:"numeric",month:"short"});
+  mk("chT",{type:"bar",data:{labels:keys.map(lab),datasets:[...cats.map(ct=>({label:CATS[ct],data:keys.map(k=>mm[ct+"|"+k]||0),backgroundColor:CCOL[ct],stack:"s"})),{type:"line",label:"التراكمي",data:cum,yAxisID:"y1",borderColor:"#12202e",backgroundColor:"#12202e",tension:.25,pointRadius:2}]},
+    options:base({plugins:leg(),scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,...ints},y1:{position:"right",...ints,grid:{drawOnChartArea:false}}}})});
+  const g=by(c=>c.grade);
+  mk("chG",{type:"doughnut",data:{labels:g.map(x=>x[0]),datasets:[{data:g.map(x=>x[1]),backgroundColor:g.map(x=>GCOL[x[0]]||"#999")}]},options:base({plugins:leg(),onClick:(e,els)=>els.length&&pick("#fGrade",g[els[0].index][0])})});
+  const dl=by(c=>c.district).slice(0,10).map(x=>x[0]),gr=[...new Set([...ORDER,...v.map(c=>c.grade)])].filter(x=>v.some(c=>c.grade===x));
+  mk("chD",{type:"bar",data:{labels:dl,datasets:gr.map(x=>({label:x,backgroundColor:GCOL[x]||"#999",data:dl.map(d=>v.filter(c=>c.district===d&&c.grade===x).length)}))},
+    options:base({indexAxis:"y",plugins:leg(),scales:{x:{stacked:true,...ints},y:{stacked:true,grid:{display:false}}},onClick:(e,els)=>els.length&&pick("#fDist",dl[els[0].index])})});
+  const ca=by(c=>cat(c));
+  mk("chC",{type:"bar",data:{labels:ca.map(x=>CATS[x[0]]),datasets:[{data:ca.map(x=>x[1]),backgroundColor:ca.map(x=>CCOL[x[0]])}]},options:base({plugins:leg(false),scales:{y:ints,x:{grid:{display:false}}},onClick:(e,els)=>els.length&&pick("#fCat",ca[els[0].index][0])})});
+  const st=by(c=>c.status);
+  mk("chS",{type:"doughnut",data:{labels:st.map(x=>ST[x[0]][0]),datasets:[{data:st.map(x=>x[1]),backgroundColor:st.map(x=>ST[x[0]][1])}]},options:base({plugins:leg(),onClick:(e,els)=>els.length&&pick("#fSt",st[els[0].index][0])})});
+  const q=["عالية","متوسطة","منخفضة"].map(l=>[l,v.filter(c=>cLvl(c)===l).length]);
+  mk("chQ",{type:"doughnut",data:{labels:q.map(x=>x[0]),datasets:[{data:q.map(x=>x[1]),backgroundColor:q.map(x=>CC[x[0]])}]},options:base({plugins:leg(),onClick:(e,els)=>els.length&&pick("#fConf",q[els[0].index][0])})});
+  if(isAll()){const u={};v.forEach(c=>{const o=u[c.created_by]||(u[c.created_by]={a:0,p:0,r:0});o[c.status==="approved"?"a":c.status==="rejected"?"r":"p"]++});
+    const us=Object.entries(u).sort((a,b)=>(b[1].a+b[1].p+b[1].r)-(a[1].a+a[1].p+a[1].r)).slice(0,12),nm=id=>NAMES[id]||"مستخدم "+String(id).slice(0,4);
+    mk("chM",{type:"bar",data:{labels:us.map(([id,o])=>nm(id)+" ("+Math.round(o.a/(o.a+o.p+o.r)*100)+"%)"),datasets:[["معتمد","a",ST.approved[1]],["بانتظار المراجعة","p",ST.pending[1]],["مرفوض","r",ST.rejected[1]]].map(([l,k,c])=>({label:l,backgroundColor:c,data:us.map(x=>x[1][k])}))},
+      options:base({indexAxis:"y",plugins:leg(),scales:{x:{stacked:true,...ints},y:{stacked:true,grid:{display:false}}}})})}}
+/* ---- تحديث فوري من الفريق (Supabase Realtime) ---- */
+function subscribeRT(){if(rt)return;rt=sb.channel("gz-records").on("postgres_changes",{event:"*",schema:"public",table:"gz_records"},()=>{clearTimeout(rtT);rtT=setTimeout(async()=>{keepView=true;await load();keepView=false},1200)}).subscribe()}
+function bars(title,pairs,colorFn){const mx=Math.max(1,...pairs.map(p=>p[1]));
+  return `<div class="card"><h2>${title}</h2><div class="pane">${pairs.length?pairs.map(([k,n])=>`<div class="bar"><em>${esc(k)}</em><i style="--c:${colorFn?colorFn(k):"var(--pri)"};width:${n/mx*100}%"></i><span>${n}</span></div>`).join(""):'<p class="hint">لا توجد بيانات مطابقة بعد.</p>'}</div></div>`}
+function dash(){const v=view(),cat=c=>tOf(c.type).c,n=k=>v.filter(c=>cat(c)===k).length,cnt=f=>{const o={};v.forEach(c=>{const k=f(c);o[k]=(o[k]||0)+1});return Object.entries(o).sort((a,b)=>b[1]-a[1])};
+  const floors=v.filter(c=>cat(c)==="bld").reduce((a,c)=>a+c.qty,0),tents=v.filter(c=>cat(c)==="camp").reduce((a,c)=>a+c.qty,0),pers=v.filter(c=>cat(c)==="camp").reduce((a,c)=>a+(c.per||0),0);
+  const K=[["السجلات",v.length],["مبانٍ ومنشآت",n("bld")],["طوابق مرصودة",floors],["مخيمات نزوح",n("camp")],["خيام مرصودة",tents],["نازحون في المخيمات",pers],["أراضٍ وبنية تحتية",n("agri")+n("infra")],["بانتظار المراجعة",v.filter(c=>c.status==="pending").length],["عالية الثقة",v.filter(c=>cLvl(c)==="عالية").length],["تعارضات للمراجعة",v.filter(c=>CF.has(c.id)).length]];
+  SUM=[["المؤشر","القيمة"],...K,...cnt(c=>c.district).map(([k,x])=>["حي: "+k,x]),...cnt(c=>c.grade).map(([k,x])=>["درجة: "+k,x])];
+  $("#dash").innerHTML=`<div class="card noprint"><h2>تصدير البيانات <span class="st">${v.length} سجل ضمن الفلاتر الحالية</span></h2><div class="pane"><div class="row"><button class="btn pri" data-x="geo">GeoJSON (QGIS / ArcGIS)</button><button class="btn pri" data-x="csv">CSV (Excel)</button><button class="btn" data-x="sum">ملخص المؤشرات (CSV)</button><button class="btn" onclick="printDash()">طباعة تقرير ملخص</button></div><label class="hint" style="display:block;margin-top:8px" title="يحذف الأسماء والعناوين والملاحظات ويقرّب الإحداثيات (~100 م)"><input type="checkbox" class="anonc" style="width:auto" ${ANON?"checked":""}> تصدير مُجهَّل (بدون أسماء وعناوين وملاحظات، وإحداثيات مقرّبة)</label><p class="hint">يتبع التصدير الفلاتر المحددة أعلاه. استورد ملف GeoJSON في QGIS أو ArcGIS، وافتح CSV في Excel.</p></div></div><div class="kpis">${K.map(([l,x])=>`<div class="kpi"><b>${x}</b><span>${l}</span></div>`).join("")}</div>${typeof Chart==="undefined"?`<div class="grid">${bars("حسب الفئة",cnt(c=>CATS[cat(c)]))}${bars("حسب درجة الضرر",cnt(c=>c.grade),k=>GCOL[k])}${bars("حسب الحي",cnt(c=>c.district).slice(0,8))}${bars("حالة المراجعة",cnt(c=>ST[c.status][0]))}${bars("مستوى الثقة",cnt(cLvl),k=>CC[k])}</div>`:chHtml()}`;
+  if(typeof Chart!=="undefined")drawCharts(v,cat)}
+
+/* ---- السجلات والتفاصيل ---- */
+function table(){const v=view();for(const id of [...SEL])if(!v.some(c=>c.id===id))SEL.delete(id);bulkUI();$("#cnt").textContent=v.length+" سجل";$("#empty").classList.toggle("hide",v.length>0);
+  $("#rows").innerHTML=v.map(c=>`<tr data-id="${c.id}"><td class="cb"><input type="checkbox" ${SEL.has(c.id)?"checked":""} ${canAct(c)?"":"disabled"} aria-label="تحديد السجل"></td><td>${CF.has(c.id)?"⚠ ":""}${rid(c)}</td><td>${esc(c.owner)}</td><td>${tOf(c.type).n}</td><td>${c.qty} ${tOf(c.type).u}</td>
+  <td><span class="chip" style="--c:${GCOL[c.grade]||"#777"}">${esc(c.grade)}</span></td><td>${esc(c.district)}</td><td><span class="st" style="--c:${CC[cLvl(c)]}">${cLvl(c)}</span></td><td><span class="st" style="--c:${ST[c.status][1]}">${ST[c.status][0]}</span></td><td style="white-space:nowrap"><button class="btn sm" data-a="d">تفاصيل</button> ${canEdit(c)?'<button class="btn sm" data-a="e">تعديل</button> ':""}${canDel(c)?'<button class="btn sm bad" data-a="x">حذف</button>':""}</td></tr>`).join("")}
+$("#rows").onclick=e=>{const tr=e.target.closest("tr");if(!tr)return;const id=tr.dataset.id,cell=e.target.closest("td.cb");
+  if(cell){const cb=cell.querySelector("input");if(cb.disabled)return;if(e.target!==cb)cb.checked=!cb.checked;cb.checked?SEL.add(id):SEL.delete(id);return bulkUI()}
+  const b=e.target.closest("button[data-a]");if(!b)return goMap(id);const a=b.dataset.a;a==="d"?detail(id):a==="e"?editRec(id):delIds([id])};
+function bulkUI(){const n=SEL.size,rv=me.role==="reviewer"||me.role==="admin";$("#bulk").classList.toggle("hide",!n);$("#selN").textContent=n+" محدد";
+  $("#bAp").classList.toggle("hide",!rv);$("#bRj").classList.toggle("hide",!rv);
+  const act=view().filter(canAct),all=$("#selAll");all.checked=act.length>0&&act.every(c=>SEL.has(c.id));all.indeterminate=!all.checked&&n>0}
+$("#selAll").onchange=e=>{const act=view().filter(canAct);e.target.checked?act.forEach(c=>SEL.add(c.id)):act.forEach(c=>SEL.delete(c.id));table()};
+$("#bClr").onclick=()=>{SEL.clear();table()};$("#bDel").onclick=()=>delIds([...SEL]);$("#bAp").onclick=()=>bulkReview("approved");$("#bRj").onclick=()=>bulkReview("rejected");
+async function bulkReview(status){const ids=[...SEL].filter(id=>{const c=recs.find(x=>x.id===id);return c&&c.status!==status});
+  if(!ids.length)return toast("لا يوجد ضمن التحديد ما يحتاج هذا الإجراء.");
+  let note="";if(status==="rejected"){const n=prompt("ملاحظة الرفض (اختياري):");if(n===null)return;note=n.trim()}
+  if(!confirm((status==="approved"?"اعتماد ":"رفض ")+ids.length+" سجل؟"))return;
+  const patch=status==="rejected"&&note?{status,review_note:note}:{status};let ok=0;
+  for(let i=0;i<ids.length;i+=50){const {data,error}=await sb.from("gz_records").update(patch).in("id",ids.slice(i,i+50)).select("id");
+    if(error){toast("توقف التحديث: "+error.message);break}ok+=(data||[]).length}
+  SEL.clear();await load();toast(`تم تحديث ${ok} من ${ids.length} سجل.`)}
+async function detail(id){const c=recs.find(x=>x.id===id);if(!c)return;const t=tOf(c.type),canRev=me.role==="reviewer"||me.role==="admin";
+  let ph="";if((c.photos||[]).length){const {data}=await sb.storage.from("gz-photos").createSignedUrls(c.photos,600);ph='<div class="ph">'+(data||[]).filter(x=>x.signedUrl).map(x=>`<img src="${x.signedUrl}" alt="صورة إثبات">`).join("")+"</div>"}
+  $("#dlg").innerHTML=`<h3 style="margin-top:0">${rid(c)} – ${esc(c.owner)}</h3>
+  ${CF.has(c.id)?'<div class="msg warn">⚠ يوجد سجل آخر قريب (أقل من 15 م) من الفئة نفسها بدرجة ضرر مختلفة. يلزم تدقيق.</div>':""}
+  <dl class="kv"><dt>النوع</dt><dd>${t.n} – ${c.qty} ${t.u}</dd><dt>الدرجة</dt><dd>${esc(c.grade)}</dd><dt>الحي</dt><dd>${esc(c.district)}</dd><dt>الموقع</dt><dd>${esc(c.street)||"—"}</dd>
+  <dt>الإحداثيات</dt><dd dir="ltr" style="text-align:right">${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}</dd>${c.area_m2?`<dt>مساحة البصمة</dt><dd>${c.area_m2} م²</dd>`:""}
+  ${t.c==="camp"?`<dt>الأسر / الأفراد</dt><dd>${c.fam||0} / ${c.per||0}</dd>`:""}<dt>المصدر</dt><dd>${SRC[c.source]||"—"}</dd><dt>الثقة</dt><dd>${cLvl(c)} (${conf(c)}%)</dd>
+  <dt>التاريخ</dt><dd>${fmt(c.created_at)}</dd><dt>ملاحظات</dt><dd>${esc(c.notes)||"—"}</dd><dt>المراجعة</dt><dd>${ST[c.status][0]}${c.review_note?" – "+esc(c.review_note):""}</dd></dl>${ph}
+  ${canRev?`<div class="noprint"><label class="hint" for="rn">ملاحظة المراجعة</label><input id="rn" value="${esc(c.review_note)}" style="width:100%;padding:7px 10px;border:1px solid var(--line);border-radius:8px;margin:3px 0 8px"><div class="row"><button class="btn pri" onclick="review('${c.id}','approved')">اعتماد</button><button class="btn bad" onclick="review('${c.id}','rejected')">رفض</button></div></div>`:""}
+  <div class="row noprint" style="margin-top:10px"><button class="btn" onclick="$('#dlg').close();goMap('${c.id}')">على الخريطة</button>${canEdit(c)?`<button class="btn" onclick="editRec('${c.id}')">تعديل</button>`:""}${canDel(c)?`<button class="btn bad" onclick="del('${c.id}')">حذف</button>`:""}<button class="btn" onclick="print()">طباعة التقرير</button><button class="btn" onclick="$('#dlg').close()">إغلاق</button></div>`;
+  $("#dlg").showModal()}
+async function review(id,status){const {error}=await sb.from("gz_records").update({status,review_note:$("#rn").value}).eq("id",id);
+  if(error)return toast("تعذّر الحفظ: "+error.message);$("#dlg").close();toast(status==="approved"?"تم الاعتماد":"تم الرفض");await load()}
+function goMap(id){focusId=id;$("#lyr").value="pts";show("mapv")}
+function editRec(id){const c=recs.find(x=>x.id===id);if(!c)return;
+  $("#dlg").innerHTML=`<h3 style="margin-top:0">تعديل ${rid(c)}</h3><div class="f">
+  <div class="w"><label for="eO">الاسم</label><input id="eO" value="${esc(c.owner)}" maxlength="120"></div>
+  <div><label for="eT">النوع</label><select id="eT"></select></div><div><label for="eQ">العدد</label><input id="eQ" type="number" min="1" value="${c.qty}"></div>
+  <div><label for="eG">الدرجة</label><select id="eG"></select></div><div><label for="eD">الحي</label><select id="eD"></select></div>
+  <div class="w"><label for="eS">وصف الموقع</label><input id="eS" value="${esc(c.street)}" maxlength="160"></div>
+  <div><label for="eF">عدد الأسر</label><input id="eF" type="number" min="0" value="${c.fam??""}"></div><div><label for="eP">عدد الأفراد</label><input id="eP" type="number" min="0" value="${c.per??""}"></div>
+  <div class="w"><label for="eSrc">المصدر</label><select id="eSrc"></select></div>
+  <div class="w"><label for="eN">ملاحظات</label><textarea id="eN" rows="2" maxlength="500">${esc(c.notes)}</textarea></div></div>
+  <div class="row" style="margin-top:12px"><button class="btn pri" id="eSave">حفظ التعديل</button><button class="btn" onclick="$('#dlg').close()">إلغاء</button></div>`;
+  const setG=cur=>{const gs=gradesOf(tOf($("#eT").value));opts($("#eG"),"",gs.map(g=>[g,g]));if(gs.includes(cur))$("#eG").value=cur};
+  opts($("#eT"),"",TYPES.map(x=>[x.k,x.n]));$("#eT").value=c.type;setG(c.grade);$("#eT").onchange=()=>setG($("#eG").value);
+  opts($("#eD"),"",myD().map(d=>[d,d]));if(!DISTS.includes(c.district))$("#eD").add(new Option(c.district,c.district));$("#eD").value=c.district;
+  opts($("#eSrc"),"",Object.entries(SRC));$("#eSrc").value=c.source;
+  $("#eSave").onclick=async()=>{const owner=$("#eO").value.trim();if(!owner)return toast("أدخل الاسم.");
+    const {error}=await sb.from("gz_records").update({owner,type:$("#eT").value,qty:Math.max(1,+$("#eQ").value||1),grade:$("#eG").value,district:$("#eD").value,street:$("#eS").value.trim(),fam:+$("#eF").value||null,per:+$("#eP").value||null,source:$("#eSrc").value,notes:$("#eN").value.trim()}).eq("id",id);
+    if(error)return toast("تعذّر الحفظ: "+error.message);$("#dlg").close();toast("تم حفظ التعديل.");await load()};
+  $("#dlg").showModal()}
+async function delIds(ids){ids=ids.filter(id=>{const c=recs.find(x=>x.id===id);return c&&canDel(c)});
+  if(!ids.length)return toast("لا يوجد ضمن التحديد ما يحق لك حذفه.");
+  if(!confirm(`حذف ${ids.length} سجل نهائياً مع صورها؟ لا يمكن التراجع.`))return;
+  let ok=0;const paths=[];
+  for(let i=0;i<ids.length;i+=50){const {data,error}=await sb.from("gz_records").delete().in("id",ids.slice(i,i+50)).select("id,photos");
+    if(error){toast("توقف الحذف: "+error.message);break}(data||[]).forEach(r=>{ok++;paths.push(...(r.photos||[]))})}
+  for(let i=0;i<paths.length;i+=100)sb.storage.from("gz-photos").remove(paths.slice(i,i+100));
+  $("#dlg").close();SEL.clear();await load();
+  toast(ok===ids.length?`تم حذف ${ok} سجل.`:`حُذف ${ok} من ${ids.length}. الباقي لم تسمح به الصلاحيات أو تغيّرت حالته.`)}
+const del=id=>delIds([id]);
+
+/* ---- التصدير ---- */
+function printDash(){document.body.classList.add("pd");addEventListener("afterprint",()=>document.body.classList.remove("pd"),{once:true});print()}
+function dl(name,text,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+document.addEventListener("change",e=>{if(e.target.classList.contains("anonc")){ANON=e.target.checked;document.querySelectorAll(".anonc").forEach(c=>c.checked=ANON)}});
+document.addEventListener("click",e=>{const x=e.target.dataset?.x;if(!x)return;
+  if(x==="sum")return dl("dashboard-summary.csv","\ufeff"+SUM.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\n"),"text/csv;charset=utf-8");const an=ANON,r=(p=>an?+p.toFixed(3):p);
+  const rows=view().map(c=>({id:rid(c),owner:an?"":c.owner,type:tOf(c.type).n,qty:c.qty,grade:c.grade,district:c.district,street:an?"":c.street,notes:an?"":c.notes,families:c.fam||"",persons:c.per||"",source:SRC[c.source]||"",confidence:cLvl(c),conflict:CF.has(c.id)?"نعم":"لا",review:ST[c.status][0],date:c.created_at.slice(0,10),area_m2:c.area_m2||"",lat:r(c.lat),lng:r(c.lng),_g:an?null:c.geom}));
+  if(!rows.length)return toast("لا توجد سجلات للتصدير.");
+  if(x==="geo")dl("damage-registry.geojson",JSON.stringify({type:"FeatureCollection",features:rows.map(({lat,lng,_g,...p})=>({type:"Feature",geometry:_g||{type:"Point",coordinates:[lng,lat]},properties:p}))}),"application/geo+json");
+  else{const k=Object.keys(rows[0]).filter(x=>x!=="_g"),q=v=>'"'+String(v).replace(/"/g,'""')+'"';dl("damage-registry.csv","\ufeff"+[k.join(","),...rows.map(o=>k.map(c=>q(o[c])).join(","))].join("\n"),"text/csv;charset=utf-8")}});
+
+/* ---- نموذج التسجيل ---- */
+function typeChange(){const t=tOf($("#aT").value);opts($("#aG"),"",gradesOf(t).map(g=>[g,g]));$("#aQL").textContent="العدد ("+t.u+")";$("#campX").classList.toggle("hide",t.c!=="camp")}
+$("#aT").onchange=typeChange;
+const LBL="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
+function initPick(){if(!pickMap){pickMap=L.map("pick",{maxZoom:20,preferCanvas:true}).setView([31.5017,34.4668],12);L.tileLayer(BASE.sat[0],{attribution:BASE.sat[1],maxNativeZoom:18,maxZoom:20}).addTo(pickMap);L.tileLayer(LBL,{maxNativeZoom:18,maxZoom:20}).addTo(pickMap);initDraw();showRef(REF)}setTimeout(()=>pickMap.invalidateSize(),60)}
+let drawn=null,areaM=null,dFG,busy=false,selL=null,refL=null,REF=null,REFMAP=null,REFNAME="",focusId=null,LM={};
+function setPt(lat,lng,keep){$("#aLat").value=lat.toFixed(6);$("#aLng").value=lng.toFixed(6);const p=[lat,lng];pickMk?pickMk.setLatLng(p):pickMk=L.marker(p).addTo(pickMap);if(!keep)pickMap.setView(p,Math.max(pickMap.getZoom(),18))}
+function clearShape(){dFG&&dFG.clearLayers();selL&&pickMap.removeLayer(selL);selL=null;drawn=null;areaM=null;$("#areaOut").textContent=""}
+function centroid(p){let a=0,x=0,y=0;for(let i=0;i<p.length-1;i++){const f=p[i][0]*p[i+1][1]-p[i+1][0]*p[i][1];a+=f;x+=(p[i][0]+p[i+1][0])*f;y+=(p[i][1]+p[i+1][1])*f}
+  if(!a){const n=Math.max(1,p.length-1);return[p.slice(0,n).reduce((s,q)=>s+q[0],0)/n,p.slice(0,n).reduce((s,q)=>s+q[1],0)/n]}return[x/(3*a),y/(3*a)]}
+const gArea=ring=>Math.round(L.GeometryUtil.geodesicArea(ring.map(q=>({lat:q[1],lng:q[0]}))));
+function setShape(l){const pts=l.getLatLngs()[0].map(q=>[q.lng,q.lat]);pts.push(pts[0]);drawn={type:"Polygon",coordinates:[pts]};areaM=gArea(pts.slice(0,-1));const c=centroid(pts);setPt(c[1],c[0],true);$("#areaOut").textContent="المساحة: "+areaM+" م²"}
+function initDraw(){dFG=L.featureGroup().addTo(pickMap);const sh={color:"#f2b705",weight:2};
+  pickMap.addControl(new L.Control.Draw({draw:{polygon:{allowIntersection:false,showArea:false,shapeOptions:sh},rectangle:{showArea:false,shapeOptions:sh},polyline:false,circle:false,marker:false,circlemarker:false},edit:{featureGroup:dFG}}));
+  const E=L.Draw.Event;
+  pickMap.on("click",e=>{if(busy)return;clearShape();setPt(e.latlng.lat,e.latlng.lng)});
+  pickMap.on(E.DRAWSTART+" "+E.EDITSTART+" "+E.DELETESTART,()=>busy=true);
+  pickMap.on(E.DRAWSTOP+" "+E.EDITSTOP+" "+E.DELETESTOP,()=>setTimeout(()=>busy=false,80));
+  pickMap.on(E.CREATED,e=>{clearShape();dFG.addLayer(e.layer);setShape(e.layer)});
+  pickMap.on(E.EDITED,e=>e.layers.eachLayer(setShape));
+  pickMap.on(E.DELETED,()=>{if(!dFG.getLayers().length)clearShape()})}
+$("#gps").onclick=()=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>setPt(p.coords.latitude,p.coords.longitude),()=>toast("تعذّر تحديد الموقع. اسمح للمتصفح بالوصول إليه أو انقر على الخريطة.")):0;
+async function shrink(f){const b=await createImageBitmap(f),k=Math.min(1,1280/Math.max(b.width,b.height)),c=document.createElement("canvas");c.width=b.width*k;c.height=b.height*k;c.getContext("2d").drawImage(b,0,0,c.width,c.height);return new Promise(r=>c.toBlob(r,"image/jpeg",.8))}
+const bad=m=>$("#addMsg").innerHTML='<div class="msg">'+esc(m)+"</div>";
+$("#save").onclick=async()=>{const owner=$("#aO").value.trim(),lat=+$("#aLat").value,lng=+$("#aLng").value;
+  if(!owner)return bad("أدخل اسم المالك أو المخيم أو المرفق.");
+  if(!$("#aD").value)return bad("لا يوجد حي معيَّن لك. تواصل مع المدير.");
+  if(!$("#aLat").value||!$("#aLng").value)return bad("حدّد الموقع بالنقر على الخريطة أو بزر الموقع الحالي.");
+  if(!(lat>=BB.la[0]&&lat<=BB.la[1]&&lng>=BB.ln[0]&&lng<=BB.ln[1]))return bad("الإحداثيات خارج نطاق قطاع غزة. تحقق من خط العرض والطول.");
+  $("#save").disabled=true;$("#addMsg").innerHTML="";
+  const blobs=[];for(const f of [...$("#aP").files].slice(0,5)){try{const b=await shrink(f);if(b)blobs.push(b)}catch{toast("تعذّر تجهيز إحدى الصور.")}}
+  const d={uid:me.id,at:new Date().toISOString(),blobs,done:[],payload:{id:crypto.randomUUID(),type:$("#aT").value,owner,qty:Math.max(1,+$("#aQ").value||1),grade:$("#aG").value,district:$("#aD").value,street:$("#aS").value.trim(),lat,lng,notes:$("#aN").value.trim(),fam:+$("#aFam").value||null,per:+$("#aPer").value||null,source:$("#aSrc").value,geom:drawn,area_m2:areaM}};
+  const r=await submitRecord(d);$("#save").disabled=false;
+  if(r.err)return bad("تعذّر الحفظ: "+r.err);
+  if(r.net&&!await qAdd(d))return bad("لا يوجد اتصال، وتعذّر حفظ المسودة على الجهاز (المساحة ممتلئة؟). لم يُحفظ شيء.");
+  ["aO","aS","aN","aLat","aLng","aFam","aPer","aP"].forEach(i=>$("#"+i).value="");$("#aQ").value=1;if(pickMk){pickMap.removeLayer(pickMk);pickMk=null}clearShape();
+  toast(r.net?"لا يوجد اتصال. حُفظ السجل كمسودة على جهازك وسيُرفع تلقائياً عند عودة الشبكة.":"تم حفظ السجل وهو بانتظار المراجعة.");
+  if(r.ok)await load()};
+
+/* ---- الخريطة ---- */
+const BASE={sat:["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}","Esri, Maxar, Earthstar Geographics"],osm:["https://tile.openstreetmap.org/{z}/{x}/{y}.png","© OpenStreetMap"],lt:["https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png","© CARTO"]};
+function setBase(){baseL&&bigMap.removeLayer(baseL);const k=$("#base").value,b=BASE[k],ls=[L.tileLayer(b[0],{attribution:b[1],maxNativeZoom:18,maxZoom:20})];if(k==="sat")ls.push(L.tileLayer(LBL,{maxNativeZoom:18,maxZoom:20}));baseL=L.layerGroup(ls).addTo(bigMap)}
+$("#base").onchange=()=>bigMap&&setBase();$("#lyr").onchange=drawMap;
+function drawMap(){if(!bigMap){bigMap=L.map("map",{maxZoom:20,preferCanvas:true}).setView([31.5017,34.4668],12);setBase()}
+  setTimeout(()=>bigMap.invalidateSize(),60);dataL&&bigMap.removeLayer(dataL);const v=view();
+  if($("#lyr").value==="heat")dataL=L.heatLayer(v.map(c=>[c.lat,c.lng,1]),{radius:25}).addTo(bigMap);
+  else{const pop=c=>`<b>${esc(c.owner)}</b><br>${tOf(c.type).n} – ${esc(c.grade)}${c.area_m2?"<br>المساحة: "+c.area_m2+" م²":""}<br><a href="#" onclick="detail('${c.id}');return false">التفاصيل</a>`;
+    LM={};dataL=L.layerGroup(v.map(c=>LM[c.id]=c.geom?L.geoJSON(c.geom,{style:{color:"#fff",weight:1.5,fillColor:GCOL[c.grade]||"#777",fillOpacity:.75}}).bindPopup(pop(c)):L.marker([c.lat,c.lng],{icon:L.divIcon({className:"",html:`<i class="m ${SHAPE[tOf(c.type).c]}" style="background:${GCOL[c.grade]||"#777"}"></i>`,iconSize:[18,18]})}).bindPopup(pop(c)))).addTo(bigMap)}
+  const fc=focusId&&recs.find(x=>x.id===focusId);focusId=null;
+  if(fc){const l=LM[fc.id];l&&l.setStyle&&l.setStyle({color:"#f2b705",weight:4});setTimeout(()=>{l&&l.getBounds?bigMap.fitBounds(l.getBounds().pad(1.5),{maxZoom:19}):bigMap.setView([fc.lat,fc.lng],19);l&&l.openPopup([fc.lat,fc.lng])},160)}
+  else if(v.length&&!keepView)bigMap.fitBounds(L.latLngBounds(v.map(c=>[c.lat,c.lng])).pad(.2),{maxZoom:17})}
+
+/* ---- طبقة المباني المرجعية (محفوظة على الجهاز فقط) ---- */
+const idb=()=>new Promise((ok,no)=>{const r=indexedDB.open("gazaReg",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+async function kvGet(k){try{const d=await idb();return await new Promise(ok=>{const q=d.transaction("kv").objectStore("kv").get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>ok(null)})}catch{return null}}
+async function kvSet(k,v){try{const tx=(await idb()).transaction("kv","readwrite");v==null?tx.objectStore("kv").delete(k):tx.objectStore("kv").put(v,k)}catch{}}
+let REFSRC="";
+const refStatus=()=>{const n=REFHIT.filter(a=>a.length).length;$("#refS").textContent=REF?`طبقة مرجعية: ${REF.length} مبنى · موثّق ${n} · المتبقي ${REF.length-n}${REFSRC==="local"?" (محلية، غير منشورة بعد)":" (من الخادم)"}`:""};
+let REFHIT=[],REFGRID=null,DRAFTV=[],DSIG="";
+const SZ=.0005,gk=(la,ln)=>Math.floor(la/SZ)+"_"+Math.floor(ln/SZ);
+const rings=g=>g.type==="Polygon"?[g.coordinates[0]]:g.coordinates.map(p=>p[0]);
+const inRing=(x,y,r)=>{let o=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const a=r[i],b=r[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])o=!o}return o};
+function refIndex(){if(REFGRID&&REFGRID.src===REF)return REFGRID;const m=new Map(),rs=REF.map(x=>rings(x.g));
+  rs.forEach((rg,i)=>{let a=1e9,b=1e9,c=-1e9,d=-1e9;rg.forEach(r=>r.forEach(q=>{a=Math.min(a,q[1]);c=Math.max(c,q[1]);b=Math.min(b,q[0]);d=Math.max(d,q[0])}));
+    for(let la=Math.floor(a/SZ);la<=Math.floor(c/SZ);la++)for(let ln=Math.floor(b/SZ);ln<=Math.floor(d/SZ);ln++){const k=la+"_"+ln;(m.get(k)||m.set(k,[]).get(k)).push(i)}});
+  return REFGRID={src:REF,m,rs}}
+/* ربط كل سجل (ومسودة) بالبصمة التي يقع مركزه داخلها */
+function markRef(skip){REFHIT=REF?REF.map(()=>[]):[];
+  if(REF&&(recs.length||DRAFTV.length)){const ix=refIndex();for(const c of [...DRAFTV,...recs])for(const i of ix.m.get(gk(c.lat,c.lng))||[])if(ix.rs[i].some(r=>inRing(c.lng,c.lat,r))){REFHIT[i].push(c);break}}
+  refStatus();if(!skip&&refL)refL.setStyle(refStyle)}
+const refStyle=f=>{const h=REFHIT[f.id]||[];if(!h.length)return{color:"#4fd1d9",weight:1,fillColor:"#4fd1d9",fillOpacity:.12};
+  if($("#refOnly").checked)return{opacity:0,fillOpacity:0,weight:0};return{color:"#fff",weight:1.5,fillColor:GCOL[h[0].grade]||"#777",fillOpacity:.7}};
+function docPopup(ll,f,h){const c=h[0];
+  L.popup().setLatLng(ll).setContent(`<div dir="rtl" style="min-width:200px;font-family:Tajawal,sans-serif"><b>${c.draft?"⏳ مسودة على جهازك لم تُرفع بعد":"✔ موثّق سابقاً"}${h.length>1?" ("+h.length+" سجلات)":""}</b><br>${esc(c.owner)} – ${esc(c.grade)}${c.draft?"":`<br><span style="color:#5d6b78;font-size:12px">${rid(c)} · ${ST[c.status][0]}</span>`}
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${c.draft?"":`<button class="btn sm pri" onclick="detail('${c.id}')">عرض السجل</button>`}${!c.draft&&canEdit(c)?`<button class="btn sm" onclick="editRec('${c.id}')">تعديل</button>`:""}<button class="btn sm" id="again">توثيق مرة أخرى</button></div></div>`).openOn(pickMap);
+  setTimeout(()=>{const b=document.getElementById("again");if(b)b.onclick=()=>{pickMap.closePopup();pickFeat(f.geometry,f.properties)}},0)}
+function showRef(list){refL&&pickMap.removeLayer(refL);refL=null;if(!list||!list.length)return;markRef(true);
+  refL=L.geoJSON({type:"FeatureCollection",features:list.map((x,i)=>({type:"Feature",id:i,geometry:x.g,properties:x.p||{name:x.n}}))},{style:refStyle,
+    onEachFeature:(f,l)=>l.on("click",ev=>{if(busy)return;L.DomEvent.stopPropagation(ev);const h=REFHIT[f.id]||[];h.length?docPopup(ev.latlng,f,h):pickFeat(f.geometry,f.properties)})}).addTo(pickMap)}
+$("#refOnly").onchange=()=>refL&&refL.setStyle(refStyle);
+const RT=[["owner","الاسم"],["grade","درجة الضرر"],["qty","العدد (طوابق…)"],["type","نوع المبنى"],["district","الحي"],["street","وصف الموقع"]];
+const RKX={owner:/(^name$|name:ar|^الاسم|owner|مالك|^اسم)/i,grade:/(damage|grade|الضرر|درجة|تصنيف)/i,qty:/(floor|storey|level|طابق|طوابق|^qty|^عدد)/i,type:/(^type$|building|usage|^use|نوع|استخدام|amenity)/i,district:/(neigh|district|الحي|منطقة)/i,street:/(street|address|عنوان|شارع|موقع)/i};
+const GN=/no\s*(visible\s*)?damage|intact|سليم|لا ضرر|none/i,GD=[[/destroy|collaps|مدمر|هدم|كلي/i,"مدمّر كلياً"],[/sever|heavy|major|شديد|بالغ/i,"ضرر شديد"],[/moder|medium|متوسط/i,"ضرر متوسط"],[/possib|potent|light|minor|slight|محتمل|طفيف/i,"ضرر محتمل"]];
+const TD=[[/hospital|clinic|health|صح|مستشفى|عياد/i,"health"],[/school|educat|univers|تعليم|مدرس|جامعة/i,"edu"],[/commerc|shop|market|retail|تجار|محل|سوق/i,"com"],[/camp|tent|مخيم|خيم/i,"camp"],[/agri|farm|زراع/i,"agri"],[/infra|water|road|بنية|طريق|مياه/i,"infra"],[/multi|apartment|عمارة|عمارات/i,"multi"],[/resid|house|home|dwell|سكن|بيت|منزل/i,"res"]];
+const strip=s=>String(s??"").replace(/[\u064B-\u0652\u0640]/g,"").trim();
+function guessGrade(v,t){const w=strip(v);if(!w)return null;const gs=gradesOf(t),ex=gs.find(g=>strip(g)===w);if(ex)return ex;
+  if(t.c==="camp"||t.c==="agri")return gs.find(g=>w.includes(strip(g)))||null;if(GN.test(w))return null;const m=GD.find(([r])=>r.test(w));return m?m[1]:null}
+function guessType(v){const w=strip(v);if(!w)return null;const e=TYPES.find(x=>x.k===w||x.n===w);if(e)return e.k;const m=TD.find(([r])=>r.test(w));return m?m[1]:null}
+function guessDist(v){const w=strip(v);if(w.length<3)return null;return DISTS.find(d=>d===w||d.includes(w)||w.includes(d.replace(/^(حي|مخيم|محافظة)\s+/,"")))||null}
+function prefill(p){if(!REFMAP)return 0;const g=k=>REFMAP[k]?String(p[REFMAP[k]]??"").trim():"";let n=0,x;
+  if(x=guessType(g("type"))){$("#aT").value=x;typeChange();n++}
+  if(x=g("owner")){$("#aO").value=x;n++}
+  if((x=parseInt(g("qty")))>0){$("#aQ").value=x;n++}
+  if(x=guessGrade(g("grade"),tOf($("#aT").value))){$("#aG").value=x;n++}
+  if(x=guessDist(g("district"))){$("#aD").value=x;n++}
+  if(x=g("street")){$("#aS").value=x;n++}
+  return n}
+function pickFeat(g,p){clearShape();const polys=g.type==="Polygon"?[g.coordinates]:g.coordinates;drawn=g;areaM=polys.reduce((s,pl)=>s+gArea(pl[0]),0);const c=centroid(polys[0][0]);setPt(c[1],c[0],true);
+  selL=L.geoJSON(g,{style:{color:"#f2b705",weight:3,fillColor:"#f2b705",fillOpacity:.35},interactive:false}).addTo(pickMap);$("#areaOut").textContent="المساحة: "+areaM+" م²";
+  const n=prefill(p||{});toast(n?`تمت تعبئة ${n} حقول من الطبقة المرجعية. راجعها قبل الحفظ.`:"تم اختيار المبنى.")}
+const STD=Object.fromEntries(RT.map(([k])=>[k,k]));
+const gzip=async s=>typeof CompressionStream==="undefined"?new Blob([s]):new Response(new Blob([s]).stream().pipeThrough(new CompressionStream("gzip"))).blob();
+const gunzip=async b=>new Response(b.stream().pipeThrough(new DecompressionStream("gzip"))).text();
+const stdProps=p=>Object.fromEntries(RT.map(([k])=>[k,REFMAP&&REFMAP[k]?String(p[REFMAP[k]]??""):""]));
+function useSrvRef(L){if(REFSRC==="local")return;const a=Object.values(L||{}).flatMap(x=>x.list);REF=a.length?a:null;REFMAP=a.length?STD:null;REFSRC=a.length?"server":"";markRef(true);refStatus();if(pickMap)showRef(REF)}
+async function syncRef(){const {data:rows,error}=await sb.from("gz_ref_layers").select("*");if(error||!rows)return;
+  const old=await kvGet("srv"),cache=old&&old.uid===me.id?old.layers:{},next={};
+  for(const r of rows){const c=cache[r.district];if(c&&c.path===r.file_path){next[r.district]=c;continue}
+    const {data:b,error:e2}=await sb.storage.from("gz-ref").download(r.file_path);if(e2||!b){if(c)next[r.district]=c;continue}
+    try{next[r.district]={path:r.file_path,list:JSON.parse(r.file_path.endsWith(".gz")?await gunzip(b):await b.text())}}catch{if(c)next[r.district]=c}}
+  await kvSet("srv",{uid:me.id,layers:next});useSrvRef(next)}
+function refPubDlg(){if(!REF||REFSRC!=="local")return toast("حمّل طبقة من ملف أولاً (زر «تحميل طبقة من ملف»).");
+  if(!Object.values(REFMAP||{}).some(Boolean)&&!confirm("لم تطابق أي حقل. تنشر البصمات بلا بيانات وصفية؟"))return;
+  $("#dlg").innerHTML=`<h3 style="margin-top:0">نشر الطبقة على الخادم</h3><p class="hint">تصل تلقائياً إلى مهندسي هذا الحي والمراجعين والمدير، وتُستبدل أي طبقة منشورة سابقاً لهذا الحي. عدد البصمات: ${REF.length}.</p><div class="f"><div class="w"><label for="pD">الحي</label><select id="pD"></select></div></div><div class="row" style="margin-top:12px"><button class="btn pri" id="pGo">نشر</button><button class="btn" onclick="$('#dlg').close()">إلغاء</button></div>`;
+  opts($("#pD"),"",DISTS.map(d=>[d,d]));
+  $("#pGo").onclick=async()=>{$("#pGo").disabled=true;const d=$("#pD").value;
+    try{const gzOK=typeof CompressionStream!=="undefined",blob=await gzip(JSON.stringify(REF.map(x=>({g:x.g,p:stdProps(x.p||{})}))));
+      if(blob.size>45*1048576)throw new Error("الملف أكبر من 45 م.ب بعد الضغط. قسّمه إلى أحياء أصغر.");
+      const path=crypto.randomUUID()+(gzOK?".json.gz":".json"),up=await sb.storage.from("gz-ref").upload(path,blob,{contentType:gzOK?"application/gzip":"application/json"});if(up.error)throw up.error;
+      const {data:prev}=await sb.from("gz_ref_layers").select("file_path").eq("district",d).maybeSingle();
+      const {error}=await sb.from("gz_ref_layers").upsert({district:d,file_path:path,features:REF.length,source_name:REFNAME,uploaded_at:new Date().toISOString()},{onConflict:"district"});
+      if(error){await sb.storage.from("gz-ref").remove([path]);throw error}
+      if(prev&&prev.file_path)sb.storage.from("gz-ref").remove([prev.file_path]);
+      $("#dlg").close();REFSRC="";await syncRef();toast("تم نشر الطبقة لحي "+d+".")}catch(e){$("#pGo").disabled=false;toast("تعذّر النشر: "+(e.message||e))}};
+  $("#dlg").showModal()}
+async function refSrvDlg(){const {data,error}=await sb.from("gz_ref_layers").select("*").order("district");if(error)return toast(error.message);
+  $("#dlg").innerHTML=`<h3 style="margin-top:0">الطبقات المنشورة</h3>${(data||[]).length?`<div class="scroll"><table><thead><tr><th>الحي</th><th>البصمات</th><th>الملف</th><th>التاريخ</th><th></th></tr></thead><tbody>${data.map(r=>`<tr style="cursor:default"><td>${esc(r.district)}</td><td>${r.features}</td><td>${esc(r.source_name)||"—"}</td><td>${fmt(r.uploaded_at)}</td><td><button class="btn sm bad" data-d="${r.id}" data-p="${esc(r.file_path)}">حذف</button></td></tr>`).join("")}</tbody></table></div>`:'<p class="hint">لا توجد طبقات منشورة بعد.</p>'}<div class="row" style="margin-top:12px"><button class="btn" onclick="$('#dlg').close()">إغلاق</button></div>`;
+  $("#dlg").querySelectorAll("button[data-d]").forEach(b=>b.onclick=async()=>{if(!confirm("حذف هذه الطبقة من الخادم؟"))return;
+    const {error}=await sb.from("gz_ref_layers").delete().eq("id",b.dataset.d);if(error)return toast(error.message);
+    sb.storage.from("gz-ref").remove([b.dataset.p]);await syncRef();toast("تم حذف الطبقة.");refSrvDlg()});
+  if(!$("#dlg").open)$("#dlg").showModal()}
+function refMapDlg(){if(!REF)return toast("حمّل طبقة مرجعية أولاً.");
+  const keys=[...new Set(REF.slice(0,300).flatMap(x=>Object.keys(x.p||{})))],ex={};REF.slice(0,300).forEach(x=>keys.forEach(k=>{if(!ex[k]&&x.p&&x.p[k])ex[k]=x.p[k]}));
+  if(!keys.length)return toast("الملف لا يحتوي حقولاً وصفية للمطابقة.");
+  const cur=REFMAP||Object.fromEntries(RT.map(([k])=>[k,keys.find(c=>RKX[k].test(c))||""]));
+  $("#dlg").innerHTML=`<h3 style="margin-top:0">مطابقة حقول الطبقة المرجعية</h3><p class="hint">اختر الحقل في ملفك الذي يقابل كل خانة، فتُعبَّأ تلقائياً عند النقر على مبنى. القيم تُفسَّر عربياً أو إنجليزياً (مثل Destroyed أو مدمّر).</p><div class="f">${RT.map(([k,l])=>`<div><label for="rm_${k}">${l}</label><select id="rm_${k}"><option value="">— بدون —</option>${keys.map(c=>`<option value="${esc(c)}"${cur[k]===c?" selected":""}>${esc(c)}${ex[c]?" ← "+esc(String(ex[c]).slice(0,18)):""}</option>`).join("")}</select></div>`).join("")}</div>
+  <div class="row" style="margin-top:12px"><button class="btn pri" id="rmSave">حفظ</button><button class="btn" onclick="$('#dlg').close()">إلغاء</button></div>`;
+  $("#rmSave").onclick=()=>{REFMAP=Object.fromEntries(RT.map(([k])=>[k,$("#rm_"+k).value]));$("#dlg").close();toast("تم حفظ المطابقة.")};
+  $("#dlg").showModal()}
+$("#refM").onclick=refMapDlg;$("#refPub").onclick=refPubDlg;$("#refSrv").onclick=refSrvDlg;
+async function readGeo(f){const n=f.name.toLowerCase();let fc;
+  if(n.endsWith(".zip")){if(typeof shp==="undefined")throw new Error("مكتبة Shapefile لم تُحمَّل. حوّل الملف إلى GeoJSON.");fc=await shp(await f.arrayBuffer())}
+  else if(n.endsWith(".csv"))fc=csv2fc(await f.text());else fc=JSON.parse(await f.text());
+  if(Array.isArray(fc))fc={features:fc.flatMap(x=>x.features)};if(fc.type==="Feature")fc={features:[fc]};return fc.features||[]}
+$("#refF").onchange=async e=>{const f=e.target.files[0];if(!f)return;
+  try{const raw=await readGeo(f),slim=o=>Object.fromEntries(Object.entries(o||{}).slice(0,25).map(([k,v])=>[k,v==null?"":String(v).slice(0,80)])),
+      list=raw.filter(x=>x.geometry&&/^(Multi)?Polygon$/.test(x.geometry.type)).slice(0,30000).map(x=>({g:x.geometry,p:slim(x.properties)}));
+    if(!list.length)return toast("لا توجد مضلعات في الملف.");REF=list;REFNAME=f.name;REFMAP=null;REFSRC="local";refStatus();if(pickMap)showRef(REF);
+    toast(`تم تحميل ${list.length} بصمة مرجعية${raw.length>30000?" (أول 30000 فقط)":""}.`);refMapDlg()}catch(err){toast("تعذّر تحميل الملف: "+err.message)}e.target.value=""};
+
+/* ---- استيراد الملفات ---- */
+let IMP=null,IMPN="";
+const impType=()=>opts($("#iG"),"",gradesOf(tOf($("#iT").value)).map(g=>[g,g]));$("#iT").onchange=impType;
+function csv2fc(t){t=t.replace(/^\ufeff/,"");const rows=[];let r=[],c="",q=false;
+  for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch=='"'){if(t[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}else if(ch=='"')q=true;else if(ch==","){r.push(c);c=""}else if(ch=="\n"||ch=="\r"){if(ch=="\r"&&t[i+1]=="\n")i++;r.push(c);c="";rows.push(r);r=[]}else c+=ch}
+  if(c||r.length){r.push(c);rows.push(r)}
+  const h=rows.shift().map(x=>x.trim()),f=re=>h.findIndex(x=>re.test(x)),la=f(/^(lat|latitude|y|خط العرض)$/i),ln=f(/^(lon|lng|long|longitude|x|خط الطول)$/i);
+  if(la<0||ln<0)throw new Error("لم أجد عمودي خط العرض والطول في ملف CSV");
+  return{features:rows.filter(r=>r.length>1).map(r=>({geometry:{type:"Point",coordinates:[+r[ln],+r[la]]},properties:Object.fromEntries(h.map((k,i)=>[k,r[i]]))}))}}
+$("#iFile").onchange=async e=>{const f=e.target.files[0];if(!f)return;IMPN=f.name;let raw;try{raw=await readGeo(f)}catch(err){return toast("تعذّرت قراءة الملف: "+err.message)}
+  const fs=raw.filter(x=>x.geometry&&/^(Multi)?(Point|Polygon)$/.test(x.geometry.type)).map(x=>({g:x.geometry,p:x.properties||{}}));
+  if(!fs.length)return toast("لا توجد نقاط أو مضلعات في الملف.");
+  IMP=fs;const cols=[...new Set(fs.slice(0,200).flatMap(x=>Object.keys(x.p)))],co=[["","— بدون —"],...cols.map(c=>[c,c])];
+  opts($("#iO"),"",co);opts($("#iQ"),"",co);opts($("#iGF"),"",co);
+  $("#iInfo").innerHTML=`عدد العناصر في الملف: <b>${fs.length}</b>${fs.length>5000?" (سيُستورد أول 5000 فقط)":""}. إن لم يحتوِ الملف درجة ضرر فستأخذ كل السجلات الدرجة الافتراضية المختارة، فلا تستورد مباني سليمة على أنها أضرار.`;
+  $("#iMap").classList.remove("hide")};
+$("#iGo").onclick=async()=>{if(!IMP)return;const t=tOf($("#iT").value),gr=gradesOf(t),fo=$("#iO").value,fq=$("#iQ").value,fg=$("#iGF").value,key=(a,b)=>a.toFixed(5)+","+b.toFixed(5)+","+t.c;
+  const seen=new Set(recs.filter(c=>tOf(c.type).c===t.c).map(c=>c.lat.toFixed(5)+","+c.lng.toFixed(5)+","+t.c));let bad=0,dup=0;const out=[];
+  for(const x of IMP.slice(0,5000)){const g=x.g;let lat,lng,geom=null,area=null;
+    if(/Polygon/.test(g.type)){const polys=g.type==="Polygon"?[g.coordinates]:g.coordinates,ring=polys[0][0];if(!ring||ring.length<4){bad++;continue}
+      const c=centroid(ring);lng=c[0];lat=c[1];geom=g;area=polys.reduce((s,pl)=>s+gArea(pl[0]),0)}else[lng,lat]=g.coordinates;
+    if(!(lat>=BB.la[0]&&lat<=BB.la[1]&&lng>=BB.ln[0]&&lng<=BB.ln[1])){bad++;continue}
+    const k=key(lat,lng);if(seen.has(k)){dup++;continue}seen.add(k);const pv=x.p,gv=fg?String(pv[fg]??"").trim():"";
+    out.push({type:t.k,owner:(fo?String(pv[fo]??"").trim().slice(0,120):"")||"مبنى مستورد",qty:Math.max(1,parseInt(fq?pv[fq]:1)||1),grade:gr.includes(gv)?gv:$("#iG").value,district:$("#iD").value,lat,lng,geom,area_m2:area,source:$("#iS").value,notes:"مستورد من ملف: "+IMPN.slice(0,80)})}
+  if(!out.length)return toast(`لا يوجد ما يُستورد (خارج القطاع أو غير صالح: ${bad}، مكرر: ${dup}).`);
+  $("#iGo").disabled=true;
+  for(let i=0;i<out.length;i+=200){toast(`جارٍ الاستيراد… ${Math.min(i+200,out.length)} / ${out.length}`);const {error}=await sb.from("gz_records").insert(out.slice(i,i+200));
+    if(error){$("#iGo").disabled=false;await load();return toast("توقف الاستيراد: "+error.message)}}
+  $("#iGo").disabled=false;IMP=null;$("#iFile").value="";$("#iMap").classList.add("hide");toast(`تم استيراد ${out.length} سجل (تجاهل ${bad} غير صالح و${dup} مكرر).`);await load()};
+
+/* ---- العمل دون اتصال: مسودات تُرفع تلقائياً ---- */
+const kvPut=async(k,v)=>{try{const tx=(await idb()).transaction("kv","readwrite");tx.objectStore("kv").put(v,k);return await new Promise(ok=>{tx.oncomplete=()=>ok(true);tx.onerror=tx.onabort=()=>ok(false)})}catch{return false}};
+const qGet=async()=>(await kvGet("queue"))||[];
+const qAdd=async d=>{const a=await qGet();a.push(d);const ok=await kvPut("queue",a);draftsUI();return ok};
+const isNet=e=>!navigator.onLine||/fetch|network|load failed|timed? ?out|offline/i.test(String(e&&(e.message||e)));
+/* يرفع الصور المتبقية ثم يدرج السجل بمعرّف ثابت، فلا يتكرر السجل إن أُعيدت المحاولة */
+async function submitRecord(d){try{
+    while(d.blobs.length){const p=`${d.uid}/${crypto.randomUUID()}.jpg`,up=await sb.storage.from("gz-photos").upload(p,d.blobs[0],{contentType:"image/jpeg"});
+      if(up.error)return isNet(up.error)?{net:true}:{err:"فشل رفع صورة: "+up.error.message};d.done.push(p);d.blobs.shift()}
+    const r=await sb.from("gz_records").upsert({...d.payload,photos:d.done},{onConflict:"id",ignoreDuplicates:true});
+    if(r.error){if(isNet(r.error))return{net:true};if(d.done.length)sb.storage.from("gz-photos").remove(d.done);d.done=[];return{err:r.error.message}}
+    return{ok:true}}catch(e){return isNet(e)?{net:true}:{err:String(e.message||e)}}}
+let flushing=false;
+async function flushQueue(manual){if(flushing||!me)return;flushing=true;
+  try{const all=await qGet(),mine=all.filter(x=>x.uid===me.id&&!x.err);
+    if(!mine.length){if(manual)toast("لا توجد مسودات بانتظار الرفع.");return}
+    if(!navigator.onLine){if(manual)toast("لا يوجد اتصال بالشبكة.");return}
+    let ok=0;for(const d of mine){const r=await submitRecord(d);if(r.ok){ok++;d._gone=true}else if(r.err)d.err=r.err;else break}
+    await kvPut("queue",all.filter(x=>!x._gone));
+    if(ok){toast(`تم رفع ${ok} مسودة.`);await load()}else if(manual)toast("تعذّر الرفع الآن. ستُعاد المحاولة تلقائياً.")}
+  finally{flushing=false;draftsUI()}}
+async function draftsUI(){if(!me)return;const q=(await qGet()).filter(x=>x.uid===me.id),sig=q.map(d=>d.payload.id).join();
+  if(sig!==DSIG){DSIG=sig;DRAFTV=q.map(d=>({id:d.payload.id,draft:true,lat:d.payload.lat,lng:d.payload.lng,grade:d.payload.grade,owner:d.payload.owner,status:"pending",created_at:d.at}));markRef()}
+  
+  $("#draftsBtn").textContent="مسودات ("+q.length+")";$("#draftsBtn").classList.toggle("hide",!q.length);$("#netBadge").classList.toggle("hide",navigator.onLine)}
+async function draftsDlg(){const q=(await qGet()).filter(x=>x.uid===me.id);
+  $("#dlg").innerHTML=`<h3 style="margin-top:0">مسودات لم تُرفع بعد</h3>${q.length?`<div class="scroll"><table><thead><tr><th>الوقت</th><th>الاسم</th><th>الحي</th><th>الصور</th><th>الحالة</th><th></th></tr></thead><tbody>${q.map(d=>`<tr style="cursor:default"><td>${new Date(d.at).toLocaleString("ar-EG")}</td><td>${esc(d.payload.owner)}</td><td>${esc(d.payload.district)}</td><td>${d.done.length+d.blobs.length}</td><td>${d.err?`<span class="st" style="--c:#9d1c1c">${esc(d.err)}</span>`:"بانتظار الرفع"}</td><td><button class="btn sm bad" data-q="${d.payload.id}">حذف</button></td></tr>`).join("")}</tbody></table></div>`:'<p class="hint">لا توجد مسودات.</p>'}<div class="row" style="margin-top:12px"><button class="btn pri" id="dfGo">رفع الآن</button><button class="btn" onclick="$('#dlg').close()">إغلاق</button></div>`;
+  $("#dfGo").onclick=async()=>{const a=await qGet();a.forEach(x=>{if(x.uid===me.id)delete x.err});await kvPut("queue",a);await flushQueue(true);draftsDlg()};
+  $("#dlg").querySelectorAll("button[data-q]").forEach(b=>b.onclick=async()=>{if(!confirm("حذف هذه المسودة نهائياً؟"))return;await kvPut("queue",(await qGet()).filter(x=>x.payload.id!==b.dataset.q));draftsUI();draftsDlg()});
+  if(!$("#dlg").open)$("#dlg").showModal()}
+$("#draftsBtn").onclick=draftsDlg;addEventListener("online",()=>{draftsUI();flushQueue()});addEventListener("offline",draftsUI);setInterval(()=>flushQueue(),60000);
+
+/* ---- جلب كل الصفوف (الحد الأقصى للطلب الواحد 1000) ---- */
+async function fetchAll(tbl,ord="created_at"){const out=[];
+  for(let i=0;;i+=1000){const {data,error}=await sb.from(tbl).select("*").order(ord,{ascending:false}).order("id").range(i,i+999);
+    if(error)return{error,data:out};out.push(...data);if(data.length<1000)break}
+  return{data:out}}
+/* ---- النسخ الاحتياطي (للمدير) ---- */
+const pgArr=a=>"{"+a.map(x=>'"'+String(x).replace(/\\/g,"\\\\").replace(/"/g,'\\"')+'"').join(",")+"}";
+const sqlv=v=>v==null?"null":Array.isArray(v)?"'"+pgArr(v).replace(/'/g,"''")+"'":typeof v==="object"?"'"+JSON.stringify(v).replace(/'/g,"''")+"'::jsonb":typeof v==="number"||typeof v==="boolean"?String(v):"'"+String(v).replace(/'/g,"''")+"'";
+const showLastBk=async()=>{const d=await kvGet("lastBk");$("#bkLast").textContent=d?"آخر نسخة نزّلتها من هذا الجهاز: "+fmt(d)+(Date.now()-new Date(d)>7*864e5?" — مضى أكثر من أسبوع، نزّل نسخة جديدة.":""):"لم تنزّل أي نسخة من هذا الجهاز بعد."};
+const bkDone=()=>{kvSet("lastBk",new Date().toISOString());showLastBk()};
+async function backupJSON(){toast("جارٍ تجهيز النسخة…");const [r,p,l]=await Promise.all([fetchAll("gz_records"),fetchAll("gz_profiles"),fetchAll("gz_ref_layers","uploaded_at")]);
+  const er=r.error||p.error||l.error;if(er)return toast("تعذّر جلب البيانات: "+er.message);
+  dl("backup-"+ymd(new Date())+".json",JSON.stringify({app:"gaza-damage-registry",exported_at:new Date().toISOString(),counts:{records:r.data.length,profiles:p.data.length,ref_layers:l.data.length},gz_records:r.data,gz_profiles:p.data,gz_ref_layers:l.data}),"application/json");
+  bkDone();toast(`تم تنزيل نسخة JSON: ${r.data.length} سجل، ${p.data.length} مستخدم.`)}
+async function backupSQL(){toast("جارٍ تجهيز النسخة…");const {data,error}=await fetchAll("gz_records");if(error)return toast("تعذّر جلب البيانات: "+error.message);
+  if(!data.length)return toast("لا توجد سجلات لنسخها.");const cols=Object.keys(data[0]),out=["-- Gaza damage registry: data-only backup of gz_records","-- Restore inside the SAME Supabase project (rows reference existing user ids). Generated "+new Date().toISOString(),""];
+  for(let i=0;i<data.length;i+=200)out.push("insert into public.gz_records ("+cols.join(", ")+") values\n"+data.slice(i,i+200).map(r=>"("+cols.map(c=>sqlv(r[c])).join(", ")+")").join(",\n")+"\non conflict (id) do nothing;\n");
+  dl("backup-records-"+ymd(new Date())+".sql",out.join("\n"),"application/sql");bkDone();toast(`تم تنزيل نسخة SQL: ${data.length} سجل.`)}
+async function backupPhotos(){if(typeof JSZip==="undefined")return toast("مكتبة الضغط لم تُحمَّل. تحقق من الاتصال وأعد المحاولة.");
+  const {data,error}=await fetchAll("gz_records");if(error)return toast("تعذّر جلب البيانات: "+error.message);
+  const paths=[...new Set(data.flatMap(r=>r.photos||[]))];if(!paths.length)return toast("لا توجد صور لنسخها.");
+  if(!confirm(`تنزيل ${paths.length} صورة في ملف ZIP؟ قد يستغرق وقتاً ويستهلك ذاكرة المتصفح، فلا تغلق الصفحة.`))return;
+  const z=new JSZip();let n=0,fail=0;
+  for(let i=0;i<paths.length;i+=5){await Promise.all(paths.slice(i,i+5).map(async p=>{const {data:b,error:e}=await sb.storage.from("gz-photos").download(p);e||!b?fail++:z.file(p,b);n++}));toast(`جارٍ التنزيل… ${n} / ${paths.length}`)}
+  const blob=await z.generateAsync({type:"blob",compression:"STORE"});dl("photos-"+ymd(new Date())+".zip",blob,"application/zip");
+  bkDone();toast(fail?`تم تنزيل ${paths.length-fail} صورة، وتعذّر ${fail}.`:`تم تنزيل ${paths.length} صورة.`)}
+$("#bkJ").onclick=backupJSON;$("#bkS").onclick=backupSQL;$("#bkP").onclick=backupPhotos;
+
+/* ---- المستخدمون (للمدير) ---- */
+async function loadUsers(){showLastBk();const {data}=await sb.from("gz_profiles").select("*").order("created_at",{ascending:false});USERS=data||[];
+  $("#urows").innerHTML=(data||[]).map(u=>`<tr style="cursor:default"><td>${esc(u.full_name)||"—"}</td><td><select onchange="upd('${u.id}',{role:this.value})">${Object.entries(ROLE).map(([k,v])=>`<option value="${k}" ${u.role===k?"selected":""}>${v}</option>`).join("")}</select></td>
+  <td><input type="checkbox" ${u.approved?"checked":""} onchange="upd('${u.id}',{approved:this.checked})" aria-label="اعتماد الحساب"></td><td>${u.role==="collector"?`<button class="btn sm" onclick="distDlg('${u.id}')">${(u.districts||[]).length?esc(u.districts.join("، ")):"غير معيّن"}</button>`:"كل المناطق"}</td></tr>`).join("")}
+function distDlg(id){const u=USERS.find(x=>x.id===id);if(!u)return;const cur=u.districts||[];
+  $("#dlg").innerHTML=`<h3 style="margin-top:0">نطاق عمل: ${esc(u.full_name||"")}</h3><p class="hint">سيرى هذا المهندس سجلات هذه الأحياء فقط، ولا يستطيع التسجيل خارجها.</p><div class="f">${DISTS.map(d=>`<label style="margin:0"><input type="checkbox" class="dz" value="${esc(d)}" ${cur.includes(d)?"checked":""} style="width:auto"> ${esc(d)}</label>`).join("")}</div><div class="row" style="margin-top:12px"><button class="btn pri" id="dzSave">حفظ</button><button class="btn" onclick="$('#dlg').close()">إلغاء</button></div>`;
+  $("#dzSave").onclick=async()=>{const v=[...document.querySelectorAll(".dz:checked")].map(c=>c.value),{error}=await sb.from("gz_profiles").update({districts:v}).eq("id",id);
+    if(error)return toast(error.message);$("#dlg").close();toast("تم حفظ النطاق.");loadUsers()};
+  $("#dlg").showModal()}
+async function upd(id,v){const {error}=await sb.from("gz_profiles").update(v).eq("id",id);if(error)toast("تعذّر التحديث: "+error.message)}
+
+sb.auth.onAuthStateChange(ev=>{if(ev==="SIGNED_OUT")screen("authView")});
+boot();
+</script>
+</body>
+</html>
